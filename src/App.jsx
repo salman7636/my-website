@@ -1,20 +1,10 @@
 import { useState } from "react";
-
-import {
-  ArrowRight,
-  CheckCircle2,
-  ChevronLeft,
-  LockKeyhole,
-  Smartphone,
-  Sparkles,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
-
-import BrandSide from "./components/BrandSide";
-import InputField from "./components/InputField";
-import PasswordInput from "./components/PasswordInput";
 import CivicDashboardApp from "./civic-dashboard/CivicDashboardApp";
+import "./styles.css";
+
+/* =========================================================
+   MODES
+   ========================================================= */
 
 const MODES = {
   LOGIN: "login",
@@ -23,17 +13,60 @@ const MODES = {
   DASHBOARD: "dashboard",
 };
 
+/* =========================================================
+   STORAGE KEYS
+   ========================================================= */
+
+const USERS_KEY = "civicvision_users";
+const CURRENT_USER_KEY =
+  "civicvision_current_user";
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function getUsers() {
+  try {
+    return JSON.parse(
+      localStorage.getItem(USERS_KEY) || "[]"
+    );
+  } catch {
+    return [];
+  }
+}
+
+function saveUsers(users) {
+  localStorage.setItem(
+    USERS_KEY,
+    JSON.stringify(users)
+  );
+}
+
+function normalizeMobile(value) {
+  return value.replace(/\D/g, "").slice(0, 10);
+}
+
+function generateOtp() {
+  return String(
+    Math.floor(100000 + Math.random() * 900000)
+  );
+}
+
+/* =========================================================
+   APP
+   ========================================================= */
+
 function App() {
-  /*
-    IMPORTANT:
-    If a user is already logged in, keep the dashboard open
-    even after browser refresh.
-  */
+  /* =======================================================
+     AUTH MODE
+     ======================================================= */
+
   const [mode, setMode] = useState(() => {
     try {
-      const currentUser = localStorage.getItem(
-        "civicvision_current_user"
-      );
+      const currentUser =
+        localStorage.getItem(
+          CURRENT_USER_KEY
+        );
 
       return currentUser
         ? MODES.DASHBOARD
@@ -43,72 +76,291 @@ function App() {
     }
   });
 
-  const [mobile, setMobile] = useState("");
-  const [name, setName] = useState("");
-  const [otp, setOtp] = useState("");
-  const [devOtp, setDevOtp] = useState("");
-  const [password, setPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  /* =======================================================
+     USER
+     ======================================================= */
 
-  const [otpSent, setOtpSent] = useState(false);
-  const [verified, setVerified] = useState(false);
+  const [currentUser, setCurrentUser] =
+    useState(() => {
+      try {
+        const saved =
+          localStorage.getItem(
+            CURRENT_USER_KEY
+          );
 
-  const [showPassword, setShowPassword] = useState(false);
+        return saved
+          ? JSON.parse(saved)
+          : null;
+      } catch {
+        return null;
+      }
+    });
 
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  /* =======================================================
+     FORM
+     ======================================================= */
 
-  const isCreate = mode === MODES.CREATE;
-  const isForgot = mode === MODES.FORGOT;
+  const [name, setName] =
+    useState("");
 
-  // --------------------------------------------------
-  // RESET AUTH STATE
-  // --------------------------------------------------
+  const [mobile, setMobile] =
+    useState("");
 
-  function resetState() {
-    setMobile("");
+  const [otp, setOtp] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [confirmPassword, setConfirmPassword] =
+    useState("");
+
+  /* =======================================================
+     OTP
+     ======================================================= */
+
+  const [generatedOtp, setGeneratedOtp] =
+    useState("");
+
+  const [otpSent, setOtpSent] =
+    useState(false);
+
+  const [otpVerified, setOtpVerified] =
+    useState(false);
+
+  /* =======================================================
+     UI
+     ======================================================= */
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
+
+  /* =======================================================
+     RESET FORM
+     ======================================================= */
+
+  function resetForm() {
     setName("");
+    setMobile("");
     setOtp("");
-    setDevOtp("");
     setPassword("");
-    setNewPassword("");
+    setConfirmPassword("");
 
+    setGeneratedOtp("");
     setOtpSent(false);
-    setVerified(false);
+    setOtpVerified(false);
 
-    setShowPassword(false);
-
+    setLoading(false);
     setMessage("");
     setError("");
   }
 
+  /* =======================================================
+     CHANGE MODE
+     ======================================================= */
+
   function changeMode(nextMode) {
-    resetState();
+    resetForm();
     setMode(nextMode);
   }
 
-  // --------------------------------------------------
-  // MOBILE NUMBER
-  // --------------------------------------------------
+  /* =======================================================
+     MOBILE INPUT
+     
+     IMPORTANT:
+     This is a normal controlled input.
+     ======================================================= */
 
-  function cleanMobile(value) {
-    return value
-      .replace(/[^\d+]/g, "")
-      .slice(0, 15);
+  function handleMobileChange(event) {
+    const value =
+      event.target.value;
+
+    const numbersOnly =
+      normalizeMobile(value);
+
+    setMobile(numbersOnly);
+
+    setError("");
+    setMessage("");
   }
 
-  // --------------------------------------------------
-  // SEND OTP
-  // --------------------------------------------------
+  /* =======================================================
+     OTP INPUT
+     ======================================================= */
+
+  function handleOtpChange(event) {
+    const value =
+      event.target.value
+        .replace(/\D/g, "")
+        .slice(0, 6);
+
+    setOtp(value);
+
+    setError("");
+  }
+
+  /* =======================================================
+     SEND OTP
+     ======================================================= */
 
   function sendOtp() {
     setError("");
     setMessage("");
 
+    const cleanMobile =
+      normalizeMobile(mobile);
+
     if (
-      isCreate &&
-      name.trim().length < 2
+      cleanMobile.length !== 10
     ) {
+      setError(
+        "Please enter a valid 10-digit mobile number."
+      );
+
+      return;
+    }
+
+    const users = getUsers();
+
+    /* CREATE ACCOUNT */
+
+    if (mode === MODES.CREATE) {
+      const exists =
+        users.some(
+          (user) =>
+            user.mobile ===
+            cleanMobile
+        );
+
+      if (exists) {
+        setError(
+          "An account with this mobile number already exists."
+        );
+
+        return;
+      }
+    }
+
+    /* LOGIN */
+
+    if (mode === MODES.LOGIN) {
+      const exists =
+        users.some(
+          (user) =>
+            user.mobile ===
+            cleanMobile
+        );
+
+      if (!exists) {
+        setError(
+          "No account found with this mobile number. Please create an account first."
+        );
+
+        return;
+      }
+    }
+
+    /* FORGOT PASSWORD */
+
+    if (mode === MODES.FORGOT) {
+      const exists =
+        users.some(
+          (user) =>
+            user.mobile ===
+            cleanMobile
+        );
+
+      if (!exists) {
+        setError(
+          "No account found with this mobile number."
+        );
+
+        return;
+      }
+    }
+
+    setLoading(true);
+
+    setTimeout(() => {
+      const newOtp =
+        generateOtp();
+
+      setGeneratedOtp(newOtp);
+
+      setOtpSent(true);
+
+      setOtp("");
+
+      setLoading(false);
+
+      /*
+        FRONTEND DEMO ONLY
+      */
+
+      setMessage(
+        `Demo OTP: ${newOtp}`
+      );
+    }, 600);
+  }
+
+  /* =======================================================
+     VERIFY OTP
+     ======================================================= */
+
+  function verifyOtp() {
+    setError("");
+    setMessage("");
+
+    if (!otpSent) {
+      setError(
+        "Please request an OTP first."
+      );
+
+      return;
+    }
+
+    if (
+      otp.length !== 6
+    ) {
+      setError(
+        "Please enter the 6-digit OTP."
+      );
+
+      return;
+    }
+
+    if (
+      otp !== generatedOtp
+    ) {
+      setError(
+        "Incorrect OTP. Please try again."
+      );
+
+      return;
+    }
+
+    setOtpVerified(true);
+
+    setMessage(
+      "OTP verified successfully."
+    );
+  }
+
+  /* =======================================================
+     CREATE ACCOUNT
+     ======================================================= */
+
+  function createAccount() {
+    setError("");
+    setMessage("");
+
+    if (!name.trim()) {
       setError(
         "Please enter your full name."
       );
@@ -117,169 +369,116 @@ function App() {
     }
 
     if (
-      mobile.replace(/\D/g, "").length < 10
+      mobile.length !== 10
     ) {
       setError(
-        "Please enter a valid mobile number."
+        "Please enter a valid 10-digit mobile number."
       );
 
       return;
     }
 
-    /*
-      FRONTEND DEVELOPMENT OTP
-
-      Later this can become:
-
-      React
-        ↓
-      FastAPI
-        ↓
-      SMS Provider
-        ↓
-      Mobile
-    */
-
-    const generatedOtp = String(
-      Math.floor(
-        100000 +
-        Math.random() * 900000
-      )
-    );
-
-    setDevOtp(generatedOtp);
-    setOtpSent(true);
-
-    setMessage(
-      "OTP sent successfully. Use the development OTP shown below."
-    );
-  }
-
-  // --------------------------------------------------
-  // VERIFY OTP
-  // --------------------------------------------------
-
-  function verifyOtp() {
-    setError("");
-    setMessage("");
-
-    if (otp.length !== 6) {
+    if (!otpVerified) {
       setError(
-        "Please enter the 6-digit OTP."
+        "Please verify your OTP first."
       );
 
       return;
     }
 
-    if (otp !== devOtp) {
+    if (
+      password.length < 6
+    ) {
       setError(
-        "Incorrect OTP. Please try again."
+        "Password must contain at least 6 characters."
       );
 
       return;
     }
 
-    setVerified(true);
-
-    setMessage(
-      "Mobile number verified successfully."
-    );
-  }
-
-  // --------------------------------------------------
-  // CREATE ACCOUNT
-  // --------------------------------------------------
-
-  function createAccount() {
-    setError("");
-    setMessage("");
-
-    if (!verified) {
+    if (
+      password !==
+      confirmPassword
+    ) {
       setError(
-        "Please verify your mobile number first."
+        "Passwords do not match."
       );
 
       return;
     }
 
-    if (password.length < 8) {
+    const users =
+      getUsers();
+
+    const exists =
+      users.some(
+        (user) =>
+          user.mobile === mobile
+      );
+
+    if (exists) {
       setError(
-        "Password must contain at least 8 characters."
+        "An account with this mobile number already exists."
       );
 
       return;
     }
 
-    let users = [];
+    const user = {
+      id:
+        `CV-${Date.now()}`,
 
-    try {
-      users = JSON.parse(
-        localStorage.getItem(
-          "civicvision_users"
-        ) || "[]"
-      );
-    } catch {
-      users = [];
-    }
+      name:
+        name.trim(),
 
-    // DUPLICATE MOBILE CHECK
+      mobile,
 
-    const existingUser = users.find(
-      (user) =>
-        user.mobile === mobile
-    );
+      password,
 
-    if (existingUser) {
-      setError(
-        "An account already exists with this mobile number. Please sign in."
-      );
-
-      return;
-    }
-
-    const newUser = {
-      id: Date.now(),
-      name: name.trim(),
-      mobile: mobile,
-      password: password,
+      createdAt:
+        new Date().toISOString(),
     };
 
-    users.push(newUser);
+    const updatedUsers =
+      [
+        ...users,
+        user,
+      ];
 
-    localStorage.setItem(
-      "civicvision_users",
-      JSON.stringify(users)
+    saveUsers(
+      updatedUsers
     );
 
-    localStorage.setItem(
-      "civicvision_current_user",
-      JSON.stringify({
-        id: newUser.id,
-        name: newUser.name,
-        mobile: newUser.mobile,
-      })
-    );
-
-    setMode(MODES.DASHBOARD);
+    loginUser(user);
   }
 
-  // --------------------------------------------------
-  // SIGN IN
-  // --------------------------------------------------
+  /* =======================================================
+     LOGIN
+     ======================================================= */
 
   function signIn() {
     setError("");
     setMessage("");
 
-    if (!verified) {
+    if (
+      mobile.length !== 10
+    ) {
       setError(
-        "Please verify your mobile number first."
+        "Please enter a valid 10-digit mobile number."
       );
 
       return;
     }
 
-    if (password.length < 8) {
+    if (!otpVerified) {
+      setError(
+        "Please verify your OTP first."
+      );
+
+      return;
+    }
+
+    if (!password) {
       setError(
         "Please enter your password."
       );
@@ -287,164 +486,177 @@ function App() {
       return;
     }
 
-    let users = [];
+    const users =
+      getUsers();
 
-    try {
-      users = JSON.parse(
-        localStorage.getItem(
-          "civicvision_users"
-        ) || "[]"
+    const user =
+      users.find(
+        (item) =>
+          item.mobile ===
+          mobile
       );
-    } catch {
-      users = [];
-    }
-
-    const user = users.find(
-      (item) =>
-        item.mobile === mobile &&
-        item.password === password
-    );
 
     if (!user) {
       setError(
-        "Invalid mobile number or password."
+        "Account not found."
       );
 
       return;
     }
 
-    localStorage.setItem(
-      "civicvision_current_user",
-      JSON.stringify({
-        id: user.id,
-        name: user.name,
-        mobile: user.mobile,
-      })
-    );
+    if (
+      user.password !==
+      password
+    ) {
+      setError(
+        "Incorrect password."
+      );
 
-    setMode(MODES.DASHBOARD);
+      return;
+    }
+
+    loginUser(user);
   }
 
-  // --------------------------------------------------
-  // RESET PASSWORD
-  // --------------------------------------------------
+  /* =======================================================
+     LOGIN USER
+     ======================================================= */
+
+  function loginUser(user) {
+    const safeUser = {
+      id: user.id,
+      name: user.name,
+      mobile: user.mobile,
+    };
+
+    localStorage.setItem(
+      CURRENT_USER_KEY,
+      JSON.stringify(
+        safeUser
+      )
+    );
+
+    setCurrentUser(
+      safeUser
+    );
+
+    resetForm();
+
+    setMode(
+      MODES.DASHBOARD
+    );
+  }
+
+  /* =======================================================
+     RESET PASSWORD
+     ======================================================= */
 
   function resetPassword() {
     setError("");
     setMessage("");
 
-    if (!verified) {
+    if (
+      mobile.length !== 10
+    ) {
       setError(
-        "Please verify your mobile number first."
+        "Please enter a valid 10-digit mobile number."
       );
 
       return;
     }
 
-    if (newPassword.length < 8) {
+    if (!otpVerified) {
       setError(
-        "New password must contain at least 8 characters."
+        "Please verify your OTP first."
       );
 
       return;
     }
 
-    let users = [];
-
-    try {
-      users = JSON.parse(
-        localStorage.getItem(
-          "civicvision_users"
-        ) || "[]"
+    if (
+      password.length < 6
+    ) {
+      setError(
+        "Password must contain at least 6 characters."
       );
-    } catch {
-      users = [];
+
+      return;
     }
 
-    const index = users.findIndex(
-      (user) =>
-        user.mobile === mobile
+    if (
+      password !==
+      confirmPassword
+    ) {
+      setError(
+        "Passwords do not match."
+      );
+
+      return;
+    }
+
+    const users =
+      getUsers();
+
+    const updatedUsers =
+      users.map(
+        (user) =>
+          user.mobile ===
+          mobile
+            ? {
+                ...user,
+                password,
+              }
+            : user
+      );
+
+    saveUsers(
+      updatedUsers
     );
 
-    if (index === -1) {
-      setError(
-        "No account found with this mobile number."
+    const updatedUser =
+      updatedUsers.find(
+        (user) =>
+          user.mobile ===
+          mobile
       );
-
-      return;
-    }
-
-    users[index].password =
-      newPassword;
-
-    localStorage.setItem(
-      "civicvision_users",
-      JSON.stringify(users)
-    );
 
     setMessage(
-      "Password reset successfully. You can now sign in."
+      "Password reset successfully."
     );
 
     setTimeout(() => {
-      changeMode(MODES.LOGIN);
-    }, 1000);
+      loginUser(
+        updatedUser
+      );
+    }, 700);
   }
 
-  // --------------------------------------------------
-  // LOGOUT
-  // --------------------------------------------------
+  /* =======================================================
+     LOGOUT
+     ======================================================= */
 
   function logout() {
-    /*
-      Remove only the active login session.
-
-      IMPORTANT:
-      We DO NOT remove:
-      - civicvision_users
-      - cv_reports
-      - cv_points
-
-      Therefore the user's data remains available
-      when they log in again.
-    */
-
     localStorage.removeItem(
-      "civicvision_current_user"
+      CURRENT_USER_KEY
     );
 
-    resetState();
+    setCurrentUser(null);
 
-    setMode(MODES.LOGIN);
+    resetForm();
+
+    setMode(
+      MODES.LOGIN
+    );
   }
 
-  // --------------------------------------------------
-  // DASHBOARD
-  // --------------------------------------------------
+  /* =======================================================
+     DASHBOARD
+     ======================================================= */
 
-  if (mode === MODES.DASHBOARD) {
-    let currentUser = {};
-
-    try {
-      currentUser = JSON.parse(
-        localStorage.getItem(
-          "civicvision_current_user"
-        ) || "{}"
-      );
-    } catch {
-      currentUser = {};
-    }
-
-    /*
-      Safety check:
-      If somehow the session was removed,
-      return to login.
-    */
-
-    if (!currentUser?.id) {
-      return null;
-    }
-
+  if (
+    mode === MODES.DASHBOARD &&
+    currentUser
+  ) {
     return (
       <CivicDashboardApp
         user={currentUser}
@@ -453,380 +665,520 @@ function App() {
     );
   }
 
-  // --------------------------------------------------
-  // AUTHENTICATION PAGE
-  // --------------------------------------------------
+  /* =======================================================
+     AUTH PAGE
+     ======================================================= */
+
+  const isCreate =
+    mode === MODES.CREATE;
+
+  const isForgot =
+    mode === MODES.FORGOT;
+
+  const title = isCreate
+    ? "Create your account"
+    : isForgot
+    ? "Reset your password"
+    : "Welcome back";
+
+  const subtitle = isCreate
+    ? "Join CivicVision and help make your city better."
+    : isForgot
+    ? "Reset your CivicVision account password."
+    : "Sign in to continue to your citizen dashboard.";
 
   return (
     <div className="auth-page">
 
-      <BrandSide />
+      {/* ===================================================
+          LEFT BRAND SECTION
+          =================================================== */}
 
-      <main className="auth-side">
+      <section className="auth-brand">
 
-        <div className="auth-card">
+        <div className="auth-brand-inner">
 
-          {/* MOBILE BRAND */}
+          <div className="brand-logo">
 
-          <div className="mobile-brand">
-
-            <div className="mobile-logo">
-              <span>Civic</span>
+            <div className="brand-logo-icon">
+              <span>◒</span>
             </div>
 
             <div>
 
-              <div className="mobile-brand-name">
-                Civic
-                <span>Vision</span>
+              <div className="brand-name">
+                Civic<span>Vision</span>
               </div>
 
-              <div className="mobile-brand-subtitle">
-                AI-POWERED SMART CITY
+              <div className="brand-tagline">
+                AI-POWERED SMART CITY ISSUE MANAGEMENT
               </div>
 
             </div>
 
           </div>
 
-          {/* BACK BUTTON */}
+          <div className="brand-kicker">
+            ✨ SMART CITY INTELLIGENCE
+          </div>
 
-          {mode !== MODES.LOGIN && (
-            <button
-              className="back-button"
-              onClick={() =>
-                changeMode(
-                  MODES.LOGIN
-                )
-              }
-            >
-              <ChevronLeft size={17} />
-              Back
-            </button>
-          )}
+          <h1>
+            Cleaner Streets.
+            <br />
+            Safer Roads.
+            <br />
+            Smarter Cities.
+          </h1>
 
-          {/* HEADING */}
+          <p className="brand-description">
+            One platform to report, detect,
+            verify and resolve civic issues
+            with AI-powered intelligence.
+          </p>
 
-          <div className="auth-heading">
+          <div className="brand-features">
 
-            <div className="heading-icon">
+            <div className="brand-feature">
 
-              {isCreate ? (
-                <UserRound />
-              ) : isForgot ? (
-                <LockKeyhole />
-              ) : (
-                <Smartphone />
-              )}
+              <div className="brand-feature-icon">
+                ⌖
+              </div>
 
-            </div>
+              <div>
+                <strong>
+                  Real-time reporting
+                </strong>
 
-            <div className="eyebrow">
-
-              <Sparkles size={14} />
-
-              CIVICVISION
+                <span>
+                  Report civic issues with GPS and photos.
+                </span>
+              </div>
 
             </div>
 
-            <h1>
-              {isCreate
-                ? "Create your account"
-                : isForgot
-                ? "Reset your password"
-                : "Welcome back"}
-            </h1>
+            <div className="brand-feature">
 
-            <p>
-              {isCreate
-                ? "Join CivicVision and help make your city better."
-                : isForgot
-                ? "Verify your mobile number to reset your password."
-                : "Sign in to continue to your citizen dashboard."}
-            </p>
+              <div className="brand-feature-icon">
+                ♢
+              </div>
+
+              <div>
+                <strong>
+                  AI-powered verification
+                </strong>
+
+                <span>
+                  Detect issues, severity and duplicate reports.
+                </span>
+              </div>
+
+            </div>
+
+            <div className="brand-feature">
+
+              <div className="brand-feature-icon">
+                ◒
+              </div>
+
+              <div>
+                <strong>
+                  Community impact
+                </strong>
+
+                <span>
+                  Help create cleaner and safer neighborhoods.
+                </span>
+              </div>
+
+            </div>
 
           </div>
 
-          {/* CREATE NAME */}
-
-          {isCreate && (
-            <InputField
-              label="Full Name"
-              value={name}
-              onChange={(event) =>
-                setName(event.target.value)
-              }
-              placeholder="Enter your full name"
-              icon={<UserRound size={18} />}
-            />
-          )}
-
-          {/* MOBILE */}
-
-          <InputField
-            label="Mobile Number"
-            value={mobile}
-            onChange={(event) =>
-              setMobile(
-                cleanMobile(
-                  event.target.value
-                )
-              )
-            }
-            placeholder="Enter mobile number"
-            icon={<Smartphone size={18} />}
-          />
-
-          {/* OTP */}
-
-          {!verified && (
-            <>
-
-              <button
-                className="primary-button"
-                onClick={
-                  otpSent
-                    ? verifyOtp
-                    : sendOtp
-                }
-              >
-
-                {otpSent
-                  ? "Verify OTP"
-                  : "Send OTP"}
-
-                <ArrowRight size={18} />
-
-              </button>
-
-              {otpSent && (
-                <>
-
-                  <div className="dev-otp">
-
-                    <span>
-                      Development OTP
-                    </span>
-
-                    <strong>
-                      {devOtp}
-                    </strong>
-
-                  </div>
-
-                  <InputField
-                    label="Enter OTP"
-                    value={otp}
-                    onChange={(event) =>
-                      setOtp(
-                        event.target.value
-                          .replace(/\D/g, "")
-                          .slice(0, 6)
-                      )
-                    }
-                    placeholder="Enter 6-digit OTP"
-                    icon={
-                      <ShieldCheck
-                        size={18}
-                      />
-                    }
-                  />
-
-                  <button
-                    className="text-button"
-                    onClick={sendOtp}
-                  >
-                    Resend OTP
-                  </button>
-
-                </>
-              )}
-
-            </>
-          )}
-
-          {/* VERIFIED */}
-
-          {verified && (
-            <div className="verified-box">
-
-              <CheckCircle2 size={19} />
-
-              <span>
-                Mobile number verified
-              </span>
-
-            </div>
-          )}
-
-          {/* PASSWORD */}
-
-          {!isForgot && verified && (
-            <PasswordInput
-              label="Password"
-              value={password}
-              onChange={(event) =>
-                setPassword(
-                  event.target.value
-                )
-              }
-              placeholder="Enter your password"
-              showPassword={showPassword}
-              setShowPassword={
-                setShowPassword
-              }
-            />
-          )}
-
-          {/* FORGOT PASSWORD */}
-
-          {isForgot && verified && (
-            <PasswordInput
-              label="New Password"
-              value={newPassword}
-              onChange={(event) =>
-                setNewPassword(
-                  event.target.value
-                )
-              }
-              placeholder="Create a new password"
-              showPassword={showPassword}
-              setShowPassword={
-                setShowPassword
-              }
-            />
-          )}
-
-          {/* ACTION BUTTON */}
-
-          {verified && (
-            <button
-              className="primary-button"
-              onClick={
-                isCreate
-                  ? createAccount
-                  : isForgot
-                  ? resetPassword
-                  : signIn
-              }
-            >
-
-              {isCreate
-                ? "Create Account"
-                : isForgot
-                ? "Reset Password"
-                : "Sign In"}
-
-              <ArrowRight size={18} />
-
-            </button>
-          )}
-
-          {/* MESSAGE */}
-
-          {message && (
-            <div className="success-message">
-
-              <CheckCircle2
-                size={17}
-              />
-
-              {message}
-
-            </div>
-          )}
-
-          {/* ERROR */}
-
-          {error && (
-            <div className="error-message">
-
-              {error}
-
-            </div>
-          )}
-
-          {/* LOGIN LINKS */}
-
-          {mode === MODES.LOGIN && (
-            <div className="login-links">
-
-              <button
-                onClick={() =>
-                  changeMode(
-                    MODES.CREATE
-                  )
-                }
-              >
-                Create new account
-              </button>
-
-              <button
-                onClick={() =>
-                  changeMode(
-                    MODES.FORGOT
-                  )
-                }
-              >
-                Forgot password?
-              </button>
-
-            </div>
-          )}
-
-          {/* CREATE LINK */}
-
-          {isCreate && (
-            <div className="bottom-link">
-
-              Already have an account?
-
-              <button
-                onClick={() =>
-                  changeMode(
-                    MODES.LOGIN
-                  )
-                }
-              >
-                Sign in
-              </button>
-
-            </div>
-          )}
-
-          {/* FORGOT LINK */}
-
-          {isForgot && (
-            <div className="bottom-link">
-
-              Remember your password?
-
-              <button
-                onClick={() =>
-                  changeMode(
-                    MODES.LOGIN
-                  )
-                }
-              >
-                Sign in
-              </button>
-
-            </div>
-          )}
-
-          {/* SECURITY */}
-
-          <div className="security-note">
-
-            <ShieldCheck size={15} />
-
-            Secure authentication • OTP verified • Password protected
-
+          <div className="brand-footer">
+            CivicVision — A Cleaner, Safer, Smarter Tomorrow
           </div>
 
         </div>
 
-      </main>
+      </section>
+
+      {/* ===================================================
+          RIGHT AUTH SECTION
+          =================================================== */}
+
+      <section className="auth-panel">
+
+        <div className="auth-card">
+
+          <div className="auth-icon">
+            📱
+          </div>
+
+          <div className="auth-mini-brand">
+            ✨ CIVICVISION
+          </div>
+
+          <h2>
+            {title}
+          </h2>
+
+          <p className="auth-subtitle">
+            {subtitle}
+          </p>
+
+          {/* ===============================================
+              CREATE ACCOUNT NAME
+              =============================================== */}
+
+          {isCreate && (
+
+            <div className="auth-field">
+
+              <label>
+                FULL NAME
+              </label>
+
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => {
+                  setName(
+                    event.target.value
+                  );
+
+                  setError("");
+                }}
+                placeholder="Enter your full name"
+                autoComplete="name"
+              />
+
+            </div>
+
+          )}
+
+          {/* ===============================================
+              MOBILE NUMBER
+              =============================================== */}
+
+          <div className="auth-field">
+
+            <label>
+              MOBILE NUMBER
+            </label>
+
+            <div className="mobile-input-wrapper">
+
+              <span className="mobile-prefix">
+                +91
+              </span>
+
+              <input
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={10}
+                value={mobile}
+                onChange={
+                  handleMobileChange
+                }
+                placeholder="Enter mobile number"
+                autoComplete="tel"
+                aria-label="Mobile number"
+              />
+
+            </div>
+
+          </div>
+
+          {/* ===============================================
+              SEND OTP
+              =============================================== */}
+
+          {!otpVerified && (
+
+            <button
+              type="button"
+              className="auth-primary-button"
+              onClick={
+                sendOtp
+              }
+              disabled={
+                loading ||
+                mobile.length !== 10
+              }
+            >
+
+              {loading
+                ? "Sending OTP..."
+                : "Send OTP →"}
+
+            </button>
+
+          )}
+
+          {/* ===============================================
+              OTP
+              =============================================== */}
+
+          {otpSent &&
+            !otpVerified && (
+
+              <div className="otp-section">
+
+                <div className="auth-field">
+
+                  <label>
+                    ENTER OTP
+                  </label>
+
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={otp}
+                    onChange={
+                      handleOtpChange
+                    }
+                    placeholder="Enter 6-digit OTP"
+                    autoComplete="one-time-code"
+                  />
+
+                </div>
+
+                <button
+                  type="button"
+                  className="auth-primary-button"
+                  onClick={
+                    verifyOtp
+                  }
+                  disabled={
+                    otp.length !== 6
+                  }
+                >
+                  Verify OTP
+                </button>
+
+              </div>
+
+            )}
+
+          {/* ===============================================
+              PASSWORD
+              =============================================== */}
+
+          {otpVerified && (
+
+            <>
+
+              <div className="verified-message">
+                ✓ Mobile number verified
+              </div>
+
+              <div className="auth-field">
+
+                <label>
+                  {isForgot
+                    ? "NEW PASSWORD"
+                    : "PASSWORD"}
+                </label>
+
+                <input
+                  type="password"
+                  value={
+                    password
+                  }
+                  onChange={(
+                    event
+                  ) => {
+                    setPassword(
+                      event.target.value
+                    );
+
+                    setError("");
+                  }}
+                  placeholder={
+                    isForgot
+                      ? "Enter new password"
+                      : "Enter password"
+                  }
+                  autoComplete={
+                    isForgot
+                      ? "new-password"
+                      : "current-password"
+                  }
+                />
+
+              </div>
+
+              {(isCreate ||
+                isForgot) && (
+
+                <div className="auth-field">
+
+                  <label>
+                    CONFIRM PASSWORD
+                  </label>
+
+                  <input
+                    type="password"
+                    value={
+                      confirmPassword
+                    }
+                    onChange={(
+                      event
+                    ) => {
+                      setConfirmPassword(
+                        event.target.value
+                      );
+
+                      setError("");
+                    }}
+                    placeholder="Confirm password"
+                    autoComplete="new-password"
+                  />
+
+                </div>
+
+              )}
+
+              <button
+                type="button"
+                className="auth-primary-button"
+                onClick={
+                  isCreate
+                    ? createAccount
+                    : isForgot
+                    ? resetPassword
+                    : signIn
+                }
+              >
+                {isCreate
+                  ? "Create Account →"
+                  : isForgot
+                  ? "Reset Password →"
+                  : "Sign In →"}
+              </button>
+
+            </>
+
+          )}
+
+          {/* ===============================================
+              ERROR
+              =============================================== */}
+
+          {error && (
+
+            <div className="auth-error">
+              ⚠ {error}
+            </div>
+
+          )}
+
+          {/* ===============================================
+              SUCCESS / OTP MESSAGE
+              =============================================== */}
+
+          {message && (
+
+            <div className="auth-success">
+              ✓ {message}
+            </div>
+
+          )}
+
+          {/* ===============================================
+              LINKS
+              =============================================== */}
+
+          {!isCreate &&
+            !isForgot && (
+
+              <div className="auth-links">
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeMode(
+                      MODES.CREATE
+                    )
+                  }
+                >
+                  Create new account
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeMode(
+                      MODES.FORGOT
+                    )
+                  }
+                >
+                  Forgot password?
+                </button>
+
+              </div>
+
+            )}
+
+          {isCreate && (
+
+            <div className="auth-links">
+
+              <span>
+                Already have an account?
+              </span>
+
+              <button
+                type="button"
+                onClick={() =>
+                  changeMode(
+                    MODES.LOGIN
+                  )
+                }
+              >
+                Sign in
+              </button>
+
+            </div>
+
+          )}
+
+          {isForgot && (
+
+            <div className="auth-links">
+
+              <span>
+                Remember your password?
+              </span>
+
+              <button
+                type="button"
+                onClick={() =>
+                  changeMode(
+                    MODES.LOGIN
+                  )
+                }
+              >
+                Back to sign in
+              </button>
+
+            </div>
+
+          )}
+
+          {/* ===============================================
+              SECURITY
+              =============================================== */}
+
+          <div className="auth-security">
+            ♢ Secure authentication • OTP verified • Password protected
+          </div>
+
+        </div>
+
+      </section>
 
     </div>
   );

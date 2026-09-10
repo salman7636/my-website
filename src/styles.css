@@ -1342,3 +1342,281 @@ button {
   }
 
 }
+/* =========================================================
+   CIVICVISION AUTH INPUT FIX
+   ========================================================= */
+
+.auth-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.auth-field label {
+  display: block;
+  margin-bottom: 7px;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+.auth-field input {
+  box-sizing: border-box;
+
+  width: 100%;
+  height: 54px;
+
+  padding: 0 15px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #0f172a;
+
+  font-family: inherit;
+  font-size: 15px;
+
+  pointer-events: auto;
+
+  opacity: 1;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.auth-field input::placeholder {
+  color: #94a3b8;
+}
+
+.auth-field input:focus {
+  border-color: #059669;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(5,150,105,.12);
+}
+
+.auth-field input:disabled {
+  opacity: 1;
+  cursor: text;
+}
+
+/* =========================================================
+   MOBILE INPUT
+   ========================================================= */
+
+.mobile-input-wrapper {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+}
+
+.mobile-prefix {
+  position: absolute;
+
+  left: 15px;
+
+  z-index: 2;
+
+  color: #475569;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  pointer-events: none;
+}
+
+.mobile-input-wrapper input {
+  padding-left: 52px !important;
+}
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.auth-primary-button {
+  width: 100%;
+  height: 54px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 4px;
+
+  border: none;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #059669,
+      #065f46
+    );
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform .15s ease,
+    opacity .15s ease;
+}
+
+.auth-primary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.auth-primary-button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   OTP
+   ========================================================= */
+
+.otp-section {
+  margin-top: 17px;
+}
+
+.verified-message {
+  margin-bottom: 15px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+
+  background: #f0fdf4;
+
+  color: #15803d;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.auth-error {
+  margin-top: 13px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   SUCCESS
+   ========================================================= */
+
+.auth-success {
+  margin-top: 13px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+
+  background: #f0fdf4;
+
+  color: #166534;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   AUTH LINKS
+   ========================================================= */
+
+.auth-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.auth-links button {
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: #047857;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.auth-links button:hover {
+  text-decoration: underline;
+}
+
+.auth-links span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* =========================================================
+   SECURITY
+   ========================================================= */
+
+.auth-security {
+  margin-top: 22px;
+  padding-top: 18px;
+
+  border-top: 1px solid #e2e8f0;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .auth-field input {
+    height: 52px;
+  }
+
+  .auth-primary-button {
+    height: 52px;
+  }
+
+}
