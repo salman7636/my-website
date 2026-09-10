@@ -1,0 +1,1344 @@
+@import url(
+  "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+);
+
+
+/* =========================================
+   GLOBAL
+========================================= */
+
+:root {
+
+  font-family:
+    Inter,
+    Arial,
+    sans-serif;
+
+  color: #17332e;
+
+  background: #f4f9f7;
+
+  font-synthesis: none;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+body {
+
+  margin: 0;
+
+  min-width: 320px;
+
+  min-height: 100vh;
+}
+
+
+button,
+input {
+  font: inherit;
+}
+
+
+button {
+  cursor: pointer;
+}
+
+
+/* =========================================
+   AUTH PAGE
+========================================= */
+
+.auth-page {
+
+  min-height: 100vh;
+
+  display: grid;
+
+  grid-template-columns:
+    46% 54%;
+
+  background: #f5faf8;
+}
+
+
+/* =========================================
+   BRAND SIDE
+========================================= */
+
+.brand-side {
+
+  position: relative;
+
+  overflow: hidden;
+
+  min-height: 100vh;
+
+  padding:
+    43px
+    clamp(32px, 5vw, 82px);
+
+  color: white;
+
+  display: flex;
+
+  flex-direction: column;
+
+  background:
+
+    radial-gradient(
+      circle at 15% 18%,
+      rgba(42, 183, 128, .22),
+      transparent 28%
+    ),
+
+    radial-gradient(
+      circle at 100% 82%,
+      rgba(0, 98, 72, .48),
+      transparent 34%
+    ),
+
+    linear-gradient(
+      145deg,
+      #062e2b 0%,
+      #075848 56%,
+      #063c37 100%
+    );
+}
+
+
+.brand-side::before {
+
+  content: "";
+
+  position: absolute;
+
+  width: 560px;
+
+  height: 560px;
+
+  right: -310px;
+
+  top: -260px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(255,255,255,.07);
+}
+
+
+.brand-side::after {
+
+  content: "";
+
+  position: absolute;
+
+  width: 760px;
+
+  height: 760px;
+
+  left: -610px;
+
+  bottom: -540px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(255,255,255,.06);
+}
+
+
+/* =========================================
+   BRAND HEADER
+========================================= */
+
+.brand-header {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  position: relative;
+
+  z-index: 2;
+}
+
+
+.brand-logo {
+
+  width: 45px;
+
+  height: 45px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex: none;
+
+  color: white;
+
+  background: #14a56f;
+
+  border-radius: 13px;
+
+  box-shadow:
+    0 10px 28px
+    rgba(0,0,0,.2);
+}
+
+
+.brand-name {
+
+  font-size: 27px;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+  letter-spacing: -1px;
+}
+
+
+.brand-name span {
+
+  color: #1bbb78;
+}
+
+
+.brand-subtitle {
+
+  margin-top: 5px;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.55px;
+
+  opacity: .67;
+}
+
+
+/* =========================================
+   BRAND CONTENT
+========================================= */
+
+.brand-main {
+
+  position: relative;
+
+  z-index: 2;
+
+  margin: auto 0;
+
+  max-width: 600px;
+}
+
+
+.brand-eyebrow,
+.eyebrow {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  color: #71dfb2;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.15px;
+}
+
+
+.brand-main h2 {
+
+  margin: 18px 0;
+
+  font-size:
+    clamp(42px, 5vw, 67px);
+
+  line-height: 1.02;
+
+  letter-spacing: -3.2px;
+}
+
+
+.brand-main > p {
+
+  max-width: 520px;
+
+  color:
+    rgba(255,255,255,.68);
+
+  font-size: 15px;
+
+  line-height: 1.75;
+}
+
+
+/* =========================================
+   FEATURES
+========================================= */
+
+.brand-features {
+
+  margin-top: 40px;
+
+  display: grid;
+
+  gap: 17px;
+}
+
+
+.feature {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+
+.feature-icon {
+
+  width: 40px;
+
+  height: 40px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex: none;
+
+  color: #74e2b3;
+
+  background:
+    rgba(255,255,255,.09);
+
+  border:
+    1px solid
+    rgba(255,255,255,.06);
+
+  border-radius: 11px;
+}
+
+
+.feature-icon svg {
+
+  width: 18px;
+}
+
+
+.feature strong,
+.feature span {
+
+  display: block;
+}
+
+
+.feature strong {
+
+  font-size: 12px;
+}
+
+
+.feature span {
+
+  margin-top: 4px;
+
+  color:
+    rgba(255,255,255,.5);
+
+  font-size: 11px;
+}
+
+
+.brand-bottom {
+
+  position: relative;
+
+  z-index: 2;
+
+  color:
+    rgba(255,255,255,.4);
+
+  font-size: 10px;
+}
+
+
+/* =========================================
+   AUTH SIDE
+========================================= */
+
+.auth-side {
+
+  min-height: 100vh;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 32px;
+}
+
+
+.auth-card {
+
+  width: min(100%, 490px);
+
+  padding: 38px 40px;
+
+  background:
+    rgba(255,255,255,.97);
+
+  border:
+    1px solid #e0ebe7;
+
+  border-radius: 25px;
+
+  box-shadow:
+    0 25px 80px
+    rgba(12,60,46,.08);
+}
+
+
+.mobile-brand {
+
+  display: none;
+}
+
+
+/* =========================================
+   BACK
+========================================= */
+
+.back-button {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  border: 0;
+
+  background: transparent;
+
+  padding: 0;
+
+  margin-bottom: 12px;
+
+  color: #71807b;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   HEADING
+========================================= */
+
+.auth-heading {
+
+  margin-bottom: 22px;
+}
+
+
+.heading-icon {
+
+  width: 43px;
+
+  height: 43px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 12px;
+
+  background: #e8f7f0;
+
+  color: #087653;
+}
+
+
+.heading-icon svg {
+
+  width: 20px;
+}
+
+
+.auth-heading .eyebrow {
+
+  margin-top: 15px;
+
+  color: #09805d;
+}
+
+
+.auth-heading h1 {
+
+  margin: 7px 0;
+
+  color: #14332d;
+
+  font-size: 28px;
+
+  letter-spacing: -1.25px;
+}
+
+
+.auth-heading p {
+
+  margin: 0;
+
+  color: #75837f;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   STEPPER
+========================================= */
+
+.stepper {
+
+  display: flex;
+
+  align-items: center;
+
+  margin-bottom: 22px;
+}
+
+
+.stepper > div {
+
+  flex: 1;
+
+  height: 2px;
+
+  background: #e8eeec;
+
+  margin: 0 7px;
+}
+
+
+.step {
+
+  width: 24px;
+
+  height: 24px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex: none;
+
+  border-radius: 50%;
+
+  background: #edf2f0;
+
+  color: #8a9692;
+
+  font-size: 10px;
+
+  font-weight: 800;
+}
+
+
+.step.active {
+
+  color: white;
+
+  background: #087653;
+}
+
+
+/* =========================================
+   FIELDS
+========================================= */
+
+.field {
+
+  margin-bottom: 16px;
+}
+
+
+.field label,
+.otp-box label {
+
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #566762;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: .65px;
+
+  text-transform: uppercase;
+}
+
+
+.input-container {
+
+  height: 49px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 0 14px;
+
+  border:
+    1px solid #d9e5e1;
+
+  border-radius: 12px;
+
+  background: #fbfdfc;
+
+  transition: .2s;
+}
+
+
+.input-container:focus-within {
+
+  border-color: #0a8a64;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(10,138,100,.09);
+}
+
+
+.input-container > svg {
+
+  width: 17px;
+
+  color: #8a9793;
+
+  flex: none;
+}
+
+
+.input-container input {
+
+  min-width: 0;
+
+  flex: 1;
+
+  outline: none;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #17342e;
+
+  font-size: 13px;
+}
+
+
+.input-container input::placeholder {
+
+  color: #a6b0ad;
+}
+
+
+.input-container input:disabled {
+
+  opacity: .65;
+}
+
+
+/* =========================================
+   PASSWORD
+========================================= */
+
+.eye {
+
+  display: grid;
+
+  place-items: center;
+
+  border: 0;
+
+  padding: 3px;
+
+  background: transparent;
+
+  color: #8a9793;
+}
+
+
+.eye svg {
+
+  width: 17px;
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.soft-button,
+.primary-button,
+.verify-button {
+
+  height: 49px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  font-weight: 800;
+
+  transition: .18s;
+}
+
+
+.soft-button {
+
+  width: 100%;
+
+  margin-bottom: 16px;
+
+  color: #087653;
+
+  background: #eaf7f1;
+}
+
+
+.primary-button {
+
+  width: 100%;
+
+  margin-top: 16px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #07865f,
+      #075a49
+    );
+
+  box-shadow:
+    0 13px 27px
+    rgba(6,128,90,.18);
+}
+
+
+.soft-button:hover,
+.primary-button:hover,
+.verify-button:hover {
+
+  transform:
+    translateY(-1px);
+}
+
+
+/* =========================================
+   OTP
+========================================= */
+
+.otp-box {
+
+  margin-bottom: 16px;
+}
+
+
+.otp-line {
+
+  display: grid;
+
+  grid-template-columns:
+    1fr 105px;
+
+  gap: 8px;
+}
+
+
+.otp-line input {
+
+  width: 100%;
+
+  height: 49px;
+
+  border:
+    1px solid #d9e5e1;
+
+  border-radius: 12px;
+
+  outline: none;
+
+  text-align: center;
+
+  font-size: 18px;
+
+  font-weight: 800;
+
+  letter-spacing: 7px;
+}
+
+
+.otp-line input:focus {
+
+  border-color: #0a8a64;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(10,138,100,.09);
+}
+
+
+.verify-button {
+
+  color: white;
+
+  background: #163d35;
+}
+
+
+.development-otp {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  margin-top: 7px;
+
+  color: #727f7b;
+
+  font-size: 10px;
+}
+
+
+.development-otp span {
+
+  color: #a96d14;
+
+  font-weight: 900;
+
+  letter-spacing: .5px;
+}
+
+
+.development-otp b {
+
+  color: #3e514b;
+
+  letter-spacing: 2px;
+}
+
+
+/* =========================================
+   VERIFIED
+========================================= */
+
+.verified-box {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 16px;
+
+  padding: 10px 12px;
+
+  border:
+    1px solid #ccecdf;
+
+  border-radius: 10px;
+
+  background: #eaf8f1;
+
+  color: #087653;
+
+  font-size: 11px;
+
+  font-weight: 800;
+}
+
+
+/* =========================================
+   ALERTS
+========================================= */
+
+.alert {
+
+  padding: 10px 12px;
+
+  margin-top: 10px;
+
+  border-radius: 10px;
+
+  font-size: 11px;
+
+  line-height: 1.45;
+}
+
+
+.alert.error {
+
+  color: #96332f;
+
+  background: #fff0ef;
+
+  border:
+    1px solid #ffd8d5;
+}
+
+
+.alert.success {
+
+  color: #087653;
+
+  background: #eaf8f1;
+
+  border:
+    1px solid #ccecdf;
+}
+
+
+/* =========================================
+   LINKS
+========================================= */
+
+.login-links {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-top: 19px;
+}
+
+
+.login-links button,
+.bottom-link button {
+
+  border: 0;
+
+  padding: 0;
+
+  background: transparent;
+
+  color: #087653;
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+
+.login-links button:last-child {
+
+  color: #667570;
+}
+
+
+.bottom-link {
+
+  margin-top: 19px;
+
+  color: #7a8783;
+
+  text-align: center;
+
+  font-size: 11px;
+}
+
+
+.bottom-link button {
+
+  margin-left: 5px;
+}
+
+
+/* =========================================
+   SECURITY
+========================================= */
+
+.security-note {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 7px;
+
+  margin-top: 24px;
+
+  padding-top: 16px;
+
+  border-top:
+    1px solid #edf1ef;
+
+  color: #9aa5a1;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   TEMPORARY DASHBOARD
+========================================= */
+
+.temporary-dashboard {
+
+  min-height: 100vh;
+
+  background:
+
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(30,185,119,.12),
+      transparent 28%
+    ),
+
+    #f4faf7;
+}
+
+
+.temporary-dashboard header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 20px 6%;
+
+  background: white;
+
+  border-bottom:
+    1px solid #e2ece8;
+}
+
+
+.brand-header.dark .brand-name {
+
+  color: #163d35;
+}
+
+
+.logout {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  border:
+    1px solid #d8e5e0;
+
+  border-radius: 10px;
+
+  padding: 9px 14px;
+
+  background: white;
+
+  color: #35544c;
+
+  font-size: 11px;
+
+  font-weight: 800;
+}
+
+
+.temporary-dashboard main {
+
+  max-width: 950px;
+
+  margin: auto;
+
+  padding: 100px 25px;
+}
+
+
+.temporary-dashboard .brand-eyebrow {
+
+  color: #087653;
+}
+
+
+.temporary-dashboard h1 {
+
+  margin: 15px 0 10px;
+
+  font-size:
+    clamp(38px, 6vw, 62px);
+
+  letter-spacing: -3px;
+}
+
+
+.temporary-dashboard main > p {
+
+  max-width: 650px;
+
+  color: #73827e;
+
+  line-height: 1.7;
+}
+
+
+.dashboard-placeholder {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 17px;
+
+  margin-top: 35px;
+
+  padding: 22px;
+
+  background: white;
+
+  border:
+    1px solid #e1ebe7;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 15px 45px
+    rgba(15,70,53,.06);
+}
+
+
+.placeholder-icon {
+
+  width: 50px;
+
+  height: 50px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex: none;
+
+  border-radius: 14px;
+
+  color: #087653;
+
+  background: #e8f7f0;
+}
+
+
+.dashboard-placeholder h3 {
+
+  margin: 0 0 6px;
+
+  font-size: 15px;
+}
+
+
+.dashboard-placeholder p {
+
+  margin: 0;
+
+  color: #75837f;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 920px) {
+
+  .auth-page {
+
+    grid-template-columns: 1fr;
+  }
+
+
+  .brand-side {
+
+    display: none;
+  }
+
+
+  .auth-side {
+
+    padding: 15px;
+  }
+
+
+  .auth-card {
+
+    padding:
+      25px 21px;
+  }
+
+
+  .mobile-brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin-bottom: 25px;
+  }
+
+
+  .mobile-logo {
+
+    width: 37px;
+
+    height: 37px;
+
+    display: grid;
+
+    place-items: center;
+
+    color: white;
+
+    background: #14a56f;
+
+    border-radius: 10px;
+
+    font-size: 8px;
+  }
+
+
+  .mobile-brand-name {
+
+    color: #163d35;
+
+    font-size: 22px;
+
+    font-weight: 800;
+
+    letter-spacing: -.7px;
+  }
+
+
+  .mobile-brand-name span {
+
+    color: #0a895f;
+  }
+
+
+  .mobile-brand-subtitle {
+
+    margin-top: 4px;
+
+    color: #84918d;
+
+    font-size: 7px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+  }
+
+}
+
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 450px) {
+
+  .auth-side {
+
+    padding: 8px;
+  }
+
+
+  .auth-card {
+
+    border-radius: 18px;
+
+    padding:
+      21px 17px;
+  }
+
+
+  .auth-heading h1 {
+
+    font-size: 25px;
+  }
+
+
+  .login-links {
+
+    flex-direction: column;
+
+    align-items: center;
+  }
+
+
+  .otp-line {
+
+    grid-template-columns: 1fr;
+  }
+
+
+  .verify-button {
+
+    width: 100%;
+  }
+
+
+  .dashboard-placeholder {
+
+    align-items: flex-start;
+  }
+
+}
